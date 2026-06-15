@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clínica Vita Imagem — Agendamento Inteligente</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#1b2430;
+    --bg:#eef2f1;
+    --card:#ffffff;
+    --blue:#2b4f6e;
+    --mint:#5fae9a;
+    --amber:#e0a458;
+    --line:#dbe3e1;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
+
+  nav{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:26px 6%;background:var(--blue);color:#fff;
+  }
+  .logo{font-family:'Fraunces',serif;font-size:21px;font-weight:700;letter-spacing:0.01em;}
+  .logo span{color:var(--amber);}
+  nav .badge{
+    font-size:12px;background:rgba(255,255,255,0.12);
+    padding:6px 14px;border-radius:20px;letter-spacing:0.05em;
+  }
+
+  .hero{padding:70px 6% 40px;text-align:center;max-width:680px;margin:0 auto;}
+  .eyebrow{
+    font-size:13px;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--mint);font-weight:600;margin-bottom:16px;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-size:clamp(32px,5vw,46px);
+    font-weight:700;line-height:1.15;margin-bottom:16px;letter-spacing:-0.01em;
+  }
+  .hero p{font-size:16px;opacity:0.7;max-width:520px;margin:0 auto;}
+
+  /* ---------- SCHEDULER ---------- */
+  .scheduler{
+    max-width:760px;margin:50px auto 90px;
+    background:var(--card);border-radius:10px;border:1px solid var(--line);
+    box-shadow:0 20px 50px -25px rgba(43,79,110,0.25);
+    overflow:hidden;
+  }
+  .scheduler-head{
+    padding:24px 28px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:14px;
+  }
+  .scheduler-head .step-num{
+    width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;font-weight:700;font-size:14px;flex-shrink:0;
+  }
+  .scheduler-head h2{font-family:'Fraunces',serif;font-size:19px;font-weight:600;}
+  .scheduler-body{padding:28px;}
+
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:8px;opacity:0.75;}
+  .field select, .field input{
+    width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:6px;
+    font-size:15px;font-family:'Inter',sans-serif;background:var(--bg);
+  }
+
+  .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;}
+  .slot{
+    border:1px solid var(--line);border-radius:6px;padding:12px;text-align:center;
+    cursor:pointer;font-size:13px;background:var(--bg);transition:all .15s;
+  }
+  .slot:hover{border-color:var(--mint);}
+  .slot.selected{background:var(--mint);color:#fff;border-color:var(--mint);}
+  .slot .day{font-weight:600;display:block;margin-bottom:2px;}
+  .slot .time{opacity:0.8;}
+
+  .btn-primary{
+    background:var(--blue);color:#fff;border:none;
+    padding:14px 28px;border-radius:6px;font-weight:600;font-size:15px;
+    cursor:pointer;width:100%;margin-top:10px;
+  }
+  .btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
+
+  /* ---------- RESULT / WHATSAPP PREVIEW ---------- */
+  #result{display:none;border-top:1px solid var(--line);}
+  #result.show{display:block;}
+
+  .wa-preview{
+    background:#0b141a;padding:24px;
+  }
+  .wa-card{
+    max-width:420px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;
+  }
+  .wa-bar{
+    background:#005c4b;color:#fff;padding:12px 16px;
+    display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;
+  }
+  .wa-bar .av{
+    width:32px;height:32px;border-radius:50%;background:var(--amber);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;color:#1b2430;font-size:14px;
+  }
+  .wa-body{
+    background:#e7ded4;padding:16px;min-height:120px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .wa-msg{
+    background:#fff;border-radius:8px;padding:10px 12px;
+    font-size:13.5px;max-width:90%;align-self:flex-start;
+    box-shadow:0 1px 1px rgba(0,0,0,0.06);
+    white-space:pre-wrap;
+  }
+  .wa-msg.loading{opacity:0.5;font-style:italic;}
+  .wa-time{font-size:10px;opacity:0.5;text-align:right;margin-top:4px;}
+
+  .reminder-flow{padding:24px 28px;}
+  .reminder-flow h3{font-family:'Fraunces',serif;font-size:16px;margin-bottom:14px;}
+  .timeline{position:relative;padding-left:28px;}
+  .timeline::before{
+    content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line);
+  }
+  .timeline .point{position:relative;padding-bottom:18px;font-size:13.5px;}
+  .timeline .point::before{
+    content:"";position:absolute;left:-28px;top:4px;width:14px;height:14px;
+    border-radius:50%;background:var(--mint);border:3px solid var(--card);
+  }
+  .timeline .point b{display:block;font-size:13px;}
+  .timeline .point span{opacity:0.6;font-size:12.5px;}
+
+  footer{padding:40px 6%;text-align:center;font-size:13px;opacity:0.5;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">vita <span>imagem</span></div>
+  <div class="badge">Agendamento Inteligente · Demo</div>
+</nav>
+
+<div class="hero">
+  <div class="eyebrow">Secretária Virtual</div>
+  <h1>Agende seu exame em poucos passos</h1>
+  <p>Selecione o exame, escolha o melhor horário e receba todas as instruções — preparo, valores e lembretes — automaticamente.</p>
+</div>
+
+<div class="scheduler">
+  <div class="scheduler-head">
+    <div class="step-num">1</div>
+    <h2>Escolha o exame e o horário</h2>
+  </div>
+  <div class="scheduler-body">
+    <div class="field">
+      <label>Seu nome</label>
+      <input type="text" id="patient-name" placeholder="Ex: Mariana Souza">
+    </div>
+    <div class="field">
+      <label>Exame</label>
+      <select id="exam-type">
+        <option value="Ultrassom Abdominal|R$ 180|Jejum de 8 horas. Beber 1 litro de água 1 hora antes e não urinar.|30 minutos">Ultrassom Abdominal — R$ 180</option>
+        <option value="Ultrassom Obstétrico (Morfológico)|R$ 250|Não é necessário jejum. Chegar com a bexiga semicheia.|40 minutos">Ultrassom Obstétrico — R$ 250</option>
+        <option value="Ultrassom Abdominal + Ultrassom Pélvico (combo)|R$ 320|Jejum de 8 horas e bexiga cheia para a parte pélvica. Chegar 15 min antes.|60 minutos">Combo Abdominal + Pélvico — R$ 320</option>
+        <option value="Ultrassom de Tireoide|R$ 160|Não é necessário preparo especial.|20 minutos">Ultrassom de Tireoide — R$ 160</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Convênio</label>
+      <select id="insurance">
+        <option>Particular</option>
+        <option>Unimed</option>
+        <option>Bradesco Saúde</option>
+        <option>Outro / Não tenho</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Horários disponíveis (próximos dias úteis)</label>
+      <div class="slots" id="slots"></div>
+    </div>
+    <button class="btn-primary" id="confirm-btn" disabled>Confirmar agendamento</button>
+  </div>
+
+  <div id="result">
+    <div class="wa-preview">
+      <div class="wa-card">
+        <div class="wa-bar">
+          <div class="av">V</div>
+          Vita Imagem · Secretária Virtual
+        </div>
+        <div class="wa-body" id="wa-body"></div>
+      </div>
+    </div>
+    <div class="reminder-flow">
+      <h3>Fluxo de lembretes automáticos</h3>
+      <div class="timeline">
+        <div class="point"><b>Agora</b><span>Confirmação enviada com instruções de preparo e valor</span></div>
+        <div class="point"><b id="rem1">1 dia antes — 18h</b><span>Lembrete + confirmação de presença solicitada</span></div>
+        <div class="point"><b id="rem2">2 horas antes</b><span>Aviso final com endereço e instruções de chegada</span></div>
+        <div class="point"><b>Opcional</b><span>Botão "Remarcar" disponível em todas as mensagens</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Clínica Vita Imagem — projeto de demonstração de secretária virtual com IA (agendamento, lembretes e integração WhatsApp).
+</footer>
+
+<script>
+const slotsEl = document.getElementById('slots');
+const confirmBtn = document.getElementById('confirm-btn');
+const result = document.getElementById('result');
+const waBody = document.getElementById('wa-body');
+
+// Generate next 6 business-day slots (morning/afternoon)
+function buildSlots(){
+  const days = [];
+  let d = new Date();
+  while(days.length < 3){
+    d.setDate(d.getDate() + 1);
+    if(d.getDay() !== 0 && d.getDay() !== 6){
+      days.push(new Date(d));
+    }
+  }
+  const fmt = new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
+  const periods = [
+    { label: '09:00', period: 'manhã' },
+    { label: '14:30', period: 'tarde' }
+  ];
+  days.forEach(day => {
+    periods.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'slot';
+      div.dataset.day = fmt.format(day);
+      div.dataset.time = p.label;
+      div.innerHTML = `<span class="day">${fmt.format(day)}</span><span class="time">${p.label}</span>`;
+      div.addEventListener('click', () => selectSlot(div));
+      slotsEl.appendChild(div);
+    });
+  });
+}
+buildSlots();
+
+let selectedSlot = null;
+function selectSlot(div){
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+  div.classList.add('selected');
+  selectedSlot = div;
+  confirmBtn.disabled = !document.getElementById('patient-name').value.trim();
+}
+
+document.getElementById('patient-name').addEventListener('input', () => {
+  confirmBtn.disabled = !(selectedSlot && document.getElementById('patient-name').value.trim());
+});
+
+function addWaMsg(text, loading){
+  const div = document.createElement('div');
+  div.className = 'wa-msg' + (loading ? ' loading' : '');
+  div.textContent = text;
+  waBody.appendChild(div);
+  return div;
+}
+
+async function callClaude(messages, system){
+  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1000,
+      system: system,
+      messages: messages
+    })
+  });
+  const data = await resp.json();
+  return data.content.filter(b => b.type === "text").map(b => b.text).join("\n");
+}
+
+confirmBtn.addEventListener('click', async () => {
+  const name = document.getElementById('patient-name').value.trim();
+  const [examName, price, prep, duration] = document.getElementById('exam-type').value.split('|');
+  const insurance = document.getElementById('insurance').value;
+  const day = selectedSlot.dataset.day;
+  const time = selectedSlot.dataset.time;
+
+  result.classList.add('show');
+  result.scrollIntoView({ behavior: 'smooth' });
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = 'Gerando confirmação...';
+
+  const loading = addWaMsg('digitando...', true);
+
+  const system = `Você é a secretária virtual da Clínica Vita Imagem. Escreva UMA mensagem de confirmação de agendamento via WhatsApp,
+em português do Brasil, texto simples (sem markdown), curta e organizada (pode usar quebras de linha e emojis simples como ✅ 📅 💳).
+Dados do agendamento:
+- Paciente: ${name}
+- Exame: ${examName} (duração estimada: ${duration})
+- Data: ${day}
+- Horário: ${time}
+- Convênio: ${insurance}
+- Valor: ${price} (mencione que convênios podem ter cobertura diferente)
+- Preparo necessário: ${prep}
+Inclua: confirmação do agendamento, instruções de preparo, valor, e avise que enviaremos lembretes antes da consulta. Termine perguntando se está tudo certo ou se precisa remarcar.`;
+
+  try{
+    const msg = await callClaude([{role:"user", content:"Gere a mensagem de confirmação."}], system);
+    loading.remove();
+    addWaMsg(msg, false);
+  }catch(err){
+    loading.remove();
+    addWaMsg(`Olá, ${name}! ✅ Seu exame de ${examName} está confirmado para ${day} às ${time}.\n\n📋 Preparo: ${prep}\n💳 Valor: ${price} (${insurance})\n\nEnviaremos lembretes 1 dia e 2h antes. Tudo certo ou prefere remarcar?`, false);
+  }
+
+  // Update reminder timeline labels
+  document.getElementById('rem1').textContent = `1 dia antes — véspera às 18h`;
+  document.getElementById('rem2').textContent = `${day} — 2h antes das ${time}`;
+
+  confirmBtn.textContent = 'Agendamento confirmado ✓';
+});
+</script>
+
+</body>
+</html>
